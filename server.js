@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const fs = require("fs");
 const fileUpload = require("express-fileupload");
+const path = require("path");
 
 // ! MiddleWares =>
 app.use(express.json());
@@ -49,4 +50,24 @@ app.post("/uploadData", (req, res)=>{
     const {myFile} = req.files;
     myFile.mv(__dirname + "/assets/uploads/" + myFile.name)
     res.status(200).json("Succesfully uploaded file");
+})
+
+// ! Using read stream method
+app.get("/readForm", (req, res)=>{
+    const filePath = path.join(__dirname , "form.html");
+    const readStream = fs.createReadStream(filePath);
+
+    readStream.on("error", (err)=>{
+        console.log("error: ", err);
+        res.status(500).json("error in reading form.html file")
+    })
+
+    readStream.pipe(res); // More efficent then readStream.on("data", (chunk)=>{})
+    // readStream.on('data', (chunk) => {
+    //     res.write(chunk);
+    //   });
+    
+    //   readStream.on('end', () => {
+    //     res.end();
+    //   });
 })
